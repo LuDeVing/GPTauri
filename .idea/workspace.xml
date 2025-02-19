@@ -5,12 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7dc88029-b3ff-49ac-a473-8b02de5fa6d3" name="Changes" comment="commited files">
-      <change afterPath="$PROJECT_DIR$/ModelCrossEntropyLoss.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_20_02_2025_01_26_[Changes]/shelved.patch" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_20_02_2025_01_26__Changes_.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/data/out/Vocabulary/inverse_vocabulary.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/data/out/Vocabulary/vocabulary.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GPTauri.py" beforeDir="false" afterPath="$PROJECT_DIR$/GPTauri.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MultiHeadAttention.py" beforeDir="false" afterPath="$PROJECT_DIR$/MultiHeadAttention.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TransformerBlock.py" beforeDir="false" afterPath="$PROJECT_DIR$/TransformerBlock.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,16 +40,17 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python.Preprocess.executor&quot;: &quot;Run&quot;,
-    &quot;Python.TransformerBlock.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/programebi/Python/Chud GPTauri/main.py&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.Preprocess.executor": "Run",
+    "Python.TransformerBlock.executor": "Run",
+    "Python.main.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "D:/programebi/Python/Chud GPTauri",
+    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python">
       <module name="GPTauri" />
@@ -98,10 +100,40 @@
       <option name="project" value="LOCAL" />
       <updated>1739488408830</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="commited files">
+      <option name="closed" value="true" />
+      <created>1740000382318</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1740000382318</updated>
+    </task>
+    <task id="LOCAL-00003" summary="commited files">
+      <option name="closed" value="true" />
+      <created>1740000696921</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1740000696921</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$" />
+    </ignored-roots>
     <MESSAGE value="commited files" />
     <option name="LAST_COMMIT_MESSAGE" value="commited files" />
   </component>
