@@ -40,27 +40,25 @@ class GPTauri(tf.keras.Model):
                                    for _ in range(self.CONFIGURATION[self.num_layers])]
 
         self.normalization_layer = tf.keras.layers.LayerNormalization(
-            beta_initializer="random_uniform",
-            gamma_initializer="random_uniform"
+            beta_initializer="zeros",
+            gamma_initializer="ones"
         )
 
-        self.linear_output_layer = tf.keras.layers.Dense(self.CONFIGURATION[self.vocabulary_size],
-                                                         kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.0,
-                                                                                                               stddev=0.05))
+        self.linear_output_layer = tf.keras.layers.Dense(self.CONFIGURATION[self.vocabulary_size])
 
-    def call(self, input_data):
+    def call(self, input_data, training=None):
         batch_size, sentence_len = input_data.shape
 
         token_embeddings = self.token_embedding_layer(input_data)
         positional_embeddings = self.position_embedding_layer(tf.range(0, sentence_len))
         x = token_embeddings + positional_embeddings
 
-        x = self.drop_out_layer(x)
+        x = self.drop_out_layer(x, training=training)
 
         for idx in range(len(self.transformer_blocks)):
-            x = self.transformer_blocks[idx](x)
+            x = self.transformer_blocks[idx](x, training=training)
 
-        x = self.normalization_layer(x)
+        x = self.normalization_layer(x, training=training)
         logits = self.linear_output_layer(x)
 
         return logits

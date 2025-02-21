@@ -14,15 +14,9 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         self.num_heads = num_heads
         self.head_dim = qkv_dim // num_heads
 
-        self.query_weights = tf.keras.layers.Dense(units=qkv_dim, use_bias=qkv_bias,
-                                                   kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.0,
-                                                                                                         stddev=0.05))
-        self.key_weights = tf.keras.layers.Dense(units=qkv_dim, use_bias=qkv_bias,
-                                                 kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.0,
-                                                                                                       stddev=0.05))
-        self.value_weights = tf.keras.layers.Dense(units=qkv_dim, use_bias=qkv_bias,
-                                                   kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.0,
-                                                                                                         stddev=0.05))
+        self.query_weights = tf.keras.layers.Dense(units=qkv_dim, use_bias=qkv_bias)
+        self.key_weights = tf.keras.layers.Dense(units=qkv_dim, use_bias=qkv_bias)
+        self.value_weights = tf.keras.layers.Dense(units=qkv_dim, use_bias=qkv_bias)
 
         self.mask = tf.linalg.band_part(tf.ones((context_len, context_len)), -1, 0)
         self.mask = tf.where(self.mask == 0, tf.constant(-float('inf')), tf.constant(0.0))
@@ -30,14 +24,11 @@ class MultiHeadAttention(tf.keras.layers.Layer):
 
         self.dropout = tf.keras.layers.Dropout(dropout_rate)
 
-        self.out_proj = tf.keras.layers.Dense(units=self.qkv_dim,
-                                              kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.0,
-                                                                                                    stddev=0.05))
+        self.out_proj = tf.keras.layers.Dense(units=self.qkv_dim)
 
-    def call(self, input_data):
-        batch = tf.shape(input_data)[0]  # Get dynamic batch size
-        context_len = tf.shape(input_data)[1]  # Get dynamic context length
-        embedding_dim = tf.shape(input_data)[2]
+    def call(self, input_data, training=None):
+        batch = tf.shape(input_data)[0]
+        context_len = tf.shape(input_data)[1]
 
         query = self.query_weights(input_data)
         key = self.key_weights(input_data)
@@ -55,7 +46,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         attention_scores += self.mask
 
         attention_weights = tf.nn.softmax(attention_scores / self.head_dim ** 0.5, axis=-1)
-        attention_weights = self.dropout(attention_weights)
+        attention_weights = self.dropout(attention_weights, training=training)
 
         context_vecs = tf.matmul(attention_weights, value)
         context_vecs = tf.transpose(context_vecs, perm=[0, 2, 1, 3])
