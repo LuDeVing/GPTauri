@@ -20,7 +20,7 @@ class DataProcess:
         self.preprocess(input_text)
 
     def tokenize(self, input_text):
-        self.tokens = self.tokenizer.encode(input_text, allowed_special=self.special_characters)
+        return self.tokenizer.encode(input_text, allowed_special=self.special_characters)
 
     def create_dataset(self):
 
@@ -40,6 +40,6 @@ class DataProcess:
             .prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
 
     def preprocess(self, input_text):
-        self.tokenize(input_text)
+        self.tokens = self.tokenize(input_text)
         self.create_dataset()
 

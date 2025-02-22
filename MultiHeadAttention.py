@@ -4,7 +4,7 @@ import numpy as np
 
 class MultiHeadAttention(tf.keras.layers.Layer):
 
-    def __init__(self, qkv_dim, num_heads, context_len, dropout_rate, qkv_bias=False, **kwargs):
+    def __init__(self, qkv_dim, num_heads, current_context_len, dropout_rate, qkv_bias=False, **kwargs):
         super(MultiHeadAttention, self).__init__(**kwargs)
 
         if qkv_dim % num_heads != 0:
@@ -18,17 +18,17 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         self.key_weights = tf.keras.layers.Dense(units=qkv_dim, use_bias=qkv_bias)
         self.value_weights = tf.keras.layers.Dense(units=qkv_dim, use_bias=qkv_bias)
 
-        self.mask = tf.linalg.band_part(tf.ones((context_len, context_len)), -1, 0)
-        self.mask = tf.where(self.mask == 0, tf.constant(-float('inf')), tf.constant(0.0))
-        self.mask = tf.reshape(self.mask, [1, 1, context_len, context_len])
-
         self.dropout = tf.keras.layers.Dropout(dropout_rate)
 
         self.out_proj = tf.keras.layers.Dense(units=self.qkv_dim)
 
-    def call(self, input_data, training=None):
+    def call(self, input_data, training=None, **kwargs):
         batch = tf.shape(input_data)[0]
         context_len = tf.shape(input_data)[1]
+
+        mask = tf.linalg.band_part(tf.ones((context_len, context_len)), -1, 0)
+        mask = tf.where(mask == 0, tf.constant(-float('inf')), tf.constant(0.0))
+        mask = tf.reshape(mask, [1, 1, context_len, context_len])
 
         query = self.query_weights(input_data)
         key = self.key_weights(input_data)
@@ -43,7 +43,7 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         value = tf.transpose(value, perm=[0, 2, 1, 3])
 
         attention_scores = tf.matmul(query, tf.transpose(key, [0, 1, 3, 2]))
-        attention_scores += self.mask
+        attention_scores += mask
 
         attention_weights = tf.nn.softmax(attention_scores / self.head_dim ** 0.5, axis=-1)
         attention_weights = self.dropout(attention_weights, training=training)

@@ -1,4 +1,8 @@
+import os
+
 import tensorflow as tf
+
+from CustomCrossEntropy import CustomCrossEntropy
 from TransformerBlock import TransformerBlock
 
 
@@ -20,6 +24,8 @@ class GPTauri(tf.keras.Model):
     drop_out_rate = 'drop_out_rate'
     qkv_bias = 'qkv_bias'
     num_layers = 'num_layers'
+
+    WEIGHTS_PATH = 'model_data\\model_weights'
 
     def __init__(self):
         super(GPTauri, self).__init__()
@@ -46,7 +52,7 @@ class GPTauri(tf.keras.Model):
 
         self.linear_output_layer = tf.keras.layers.Dense(self.CONFIGURATION[self.vocabulary_size])
 
-    def call(self, input_data, training=None):
+    def call(self, input_data, training=None, **kwargs):
         batch_size, sentence_len = input_data.shape
 
         token_embeddings = self.token_embedding_layer(input_data)
@@ -62,3 +68,18 @@ class GPTauri(tf.keras.Model):
         logits = self.linear_output_layer(x)
 
         return logits
+
+    def train(self, data):
+
+        if os.path.exists(self.WEIGHTS_PATH):
+            return
+
+        self.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.00001),
+                      loss=CustomCrossEntropy(),  # tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                      metrics=['accuracy'])
+
+        self.fit(data.dataset, epochs=500)
+
+        self.save('model_data\\model_weights')
+
+

@@ -33,7 +33,7 @@ class TransformerBlock(tf.keras.layers.Layer):
         self.gelu_activation = tf.keras.activations.gelu
         self.linear_layer_2 = tf.keras.layers.Dense(conf['embedding_dimension'])
 
-    def call(self, input_data, training=None):
+    def call(self, input_data, training=None, **kwargs):
 
         shortcut = input_data
 
