@@ -100,7 +100,6 @@ Prepare your training data (e.g., a large text file named `input_text.txt`).  
 Run the training script (adapt from `main.txt`'s `test_training` function):   
 
 ```python
-# Example snippet based on main.txt
 import tensorflow as tf
 from GPTauri import GPTauri
 from DataProcess import DataProcess
@@ -133,7 +132,6 @@ model.train(data) # training the model, the model is saved at model WEIGHTS_PATH
 Use the `generate_response` function in `main.txt` as a template, or the `TextGeneration` class directly:  
 
 ```python
-# Example snippet based on main.txt / TextGeneration.txt
 import tensorflow as tf
 from GPTauri import GPTauri
 from Tokenizer import Tokenizer
