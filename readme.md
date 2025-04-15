@@ -184,11 +184,9 @@ The group was taken in by their leader's curiosity. The elder's voice echoed thr
 
 It's hard to describe what it sounded like. A tall, thin man with a dark cloak. His hands were held tightly around his waist. His hands were bound, with no other means of movement, and his face was pale, but his gaze was fixed on the young man. His gaze was so focused on the traveler that it looked as if he had no idea what he was...
 
+## Example 2: GIF of text generation:
 
-
-# 🙏 Contributing
-
-Contributions are welcome! Please feel free to submit pull requests or open issues. Let's make GPTauri even better together! 💪
+![ezgif-2609cda9f41033](https://github.com/user-attachments/assets/a6eb3277-aa04-4c9d-9995-c6dcd39d872c)
 
 # 📄 License
 
