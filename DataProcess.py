@@ -1,14 +1,11 @@
 import numpy as np
-import tiktoken
 import tensorflow as tf
 
 
 class DataProcess:
 
-    special_characters = {'<|endoftext|>'}
-
-    def __init__(self, input_text, stride=384, context_length=1024, batch_size=8):
-        self.tokenizer = tiktoken.get_encoding('gpt2')
+    def __init__(self, input_text, tokenizer, stride=384, context_length=1024, batch_size=8):
+        self.tokenizer = tokenizer
         self.tokens = None
 
         self.stride = stride
@@ -18,9 +15,6 @@ class DataProcess:
         self.dataset = None
 
         self.preprocess(input_text)
-
-    def tokenize(self, input_text):
-        return self.tokenizer.encode(input_text, allowed_special=self.special_characters)
 
     def create_dataset(self):
 
@@ -40,6 +34,6 @@ class DataProcess:
             .prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
 
     def preprocess(self, input_text):
-        self.tokens = self.tokenize(input_text)
+        self.tokens = self.tokenizer.tokenize(input_text)
         self.create_dataset()
 

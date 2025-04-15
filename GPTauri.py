@@ -1,5 +1,3 @@
-import os
-
 import tensorflow as tf
 
 from CustomCrossEntropy import CustomCrossEntropy
@@ -27,7 +25,11 @@ class GPTauri(tf.keras.Model):
 
     WEIGHTS_PATH = 'model_data\\model_weights\\weights.ckpt'
 
-    def __init__(self):
+    def __init__(self, configuration=None):
+
+        if configuration is not None:
+            self.CONFIGURATION = configuration
+
         super(GPTauri, self).__init__()
 
         self.token_embedding_layer = tf.keras.layers.Embedding(
