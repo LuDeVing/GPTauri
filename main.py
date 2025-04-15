@@ -67,6 +67,6 @@ def generate_response():
             continue
         if txt == "exit":
             break
-        TextGeneration.generate_and_print(txt, model, tokenizer, 100, 1.2, 10)
+        TextGeneration.generate_and_print(txt, model, tokenizer, 100, 1.1, 7)
 
 generate_response()
