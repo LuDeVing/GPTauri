@@ -4,7 +4,7 @@ import numpy as np
 
 class MultiHeadAttention(tf.keras.layers.Layer):
 
-    def __init__(self, qkv_dim, num_heads, context_len, dropout_rate, qkv_bias=False, **kwargs):
+    def __init__(self, qkv_dim, num_heads, context_length, dropout_rate, qkv_bias=False, **kwargs):
         super(MultiHeadAttention, self).__init__(**kwargs)
 
         if qkv_dim % num_heads != 0:
@@ -14,30 +14,20 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         self.num_heads = num_heads
         self.head_dim = qkv_dim // num_heads
 
-        self.query_weights = tf.keras.layers.Dense(units=qkv_dim, use_bias=qkv_bias,
-                                                   kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.0,
-                                                                                                         stddev=0.05))
-        self.key_weights = tf.keras.layers.Dense(units=qkv_dim, use_bias=qkv_bias,
-                                                 kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.0,
-                                                                                                       stddev=0.05))
-        self.value_weights = tf.keras.layers.Dense(units=qkv_dim, use_bias=qkv_bias,
-                                                   kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.0,
-                                                                                                         stddev=0.05))
-
-        self.mask = tf.linalg.band_part(tf.ones((context_len, context_len)), -1, 0)
-        self.mask = tf.where(self.mask == 0, tf.constant(-float('inf')), tf.constant(0.0))
-        self.mask = tf.reshape(self.mask, [1, 1, context_len, context_len])
+        self.query_weights = tf.keras.layers.Dense(qkv_dim, use_bias=qkv_bias)
+        self.key_weights = tf.keras.layers.Dense(qkv_dim, use_bias=qkv_bias)
+        self.value_weights = tf.keras.layers.Dense(qkv_dim, use_bias=qkv_bias)
 
         self.dropout = tf.keras.layers.Dropout(dropout_rate)
 
-        self.out_proj = tf.keras.layers.Dense(units=self.qkv_dim,
-                                              kernel_initializer=tf.keras.initializers.RandomNormal(mean=0.0,
-                                                                                                    stddev=0.05))
+        self.out_proj = tf.keras.layers.Dense(self.qkv_dim)
 
-    def call(self, input_data):
-        batch = tf.shape(input_data)[0]  # Get dynamic batch size
-        context_len = tf.shape(input_data)[1]  # Get dynamic context length
-        embedding_dim = tf.shape(input_data)[2]
+        mask = tf.linalg.band_part(tf.ones((context_length, context_length)), 0, -1) - tf.eye(context_length)
+        self.mask = tf.cast(mask, tf.bool)
+
+    def call(self, input_data, training=None, **kwargs):
+        batch = tf.shape(input_data)[0]
+        context_len = tf.shape(input_data)[1]
 
         query = self.query_weights(input_data)
         key = self.key_weights(input_data)
@@ -52,10 +42,14 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         value = tf.transpose(value, perm=[0, 2, 1, 3])
 
         attention_scores = tf.matmul(query, tf.transpose(key, [0, 1, 3, 2]))
-        attention_scores += self.mask
 
-        attention_weights = tf.nn.softmax(attention_scores / self.head_dim ** 0.5, axis=-1)
-        attention_weights = self.dropout(attention_weights)
+        mask = self.mask[:context_len, :context_len]
+        mask = tf.expand_dims(tf.expand_dims(mask, 0), 0)
+
+        attention_scores = tf.where(mask, -float('inf'), attention_scores)
+
+        attention_weights = tf.nn.softmax(attention_scores / (self.head_dim ** 0.5), axis=-1)
+        attention_weights = self.dropout(attention_weights, training=training)
 
         context_vecs = tf.matmul(attention_weights, value)
         context_vecs = tf.transpose(context_vecs, perm=[0, 2, 1, 3])

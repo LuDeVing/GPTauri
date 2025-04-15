@@ -20,7 +20,7 @@ class DataProcess:
         self.preprocess(input_text)
 
     def tokenize(self, input_text):
-        self.tokens = self.tokenizer.encode(input_text, allowed_special=self.special_characters)
+        return self.tokenizer.encode(input_text, allowed_special=self.special_characters)
 
     def create_dataset(self):
 
@@ -35,10 +35,11 @@ class DataProcess:
         out_data = np.array(out_data)
 
         self.dataset = tf.data.Dataset.from_tensor_slices((input_data, out_data))
-        self.dataset.batch(batch_size=self.batch_size)
-        self.dataset = self.dataset.shuffle(buffer_size=1000).batch(self.batch_size).prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
+        self.dataset = self.dataset.shuffle(buffer_size=1000) \
+            .batch(self.batch_size) \
+            .prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
 
     def preprocess(self, input_text):
-        self.tokenize(input_text)
+        self.tokens = self.tokenize(input_text)
         self.create_dataset()
 

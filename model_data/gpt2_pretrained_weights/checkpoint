@@ -1,0 +1,2 @@
+model_checkpoint_path: "gpt2_model_weights.ckpt"
+all_model_checkpoint_paths: "gpt2_model_weights.ckpt"

@@ -1,84 +1,117 @@
+import os.path
+
 import tensorflow as tf
 
+import MultiHeadAttention
+from CustomCrossEntropy import CustomCrossEntropy
 from GPTauri import GPTauri
 from DataProcess import DataProcess
 
-from ModelCrossEntropyLoss import CrossEntropyGPT
-from MultiHeadAttention import MultiHeadAttention
-from TransformerBlock import TransformerBlock
+tf.keras.backend.clear_session()
+tf.compat.v1.reset_default_graph()
+
+# import os
+# os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 a = open("input_text.txt", "r", encoding='utf-8').read()
-
 model = GPTauri()
+
+batch_size = 4
 
 data = DataProcess(
     input_text=a,
     stride=model.CONFIGURATION[model.context_length],
     context_length=model.CONFIGURATION[model.context_length],
-    batch_size=8
+    batch_size=batch_size
 )
 
 
-def calculate_loss(input_batch, output_batch):
-    context_len_input_batches = input_batch[:, -model.CONFIGURATION[model.context_length]:]
-    context_len_output_batches = output_batch[:, -model.CONFIGURATION[model.context_length]:]
-
-    context_len_output_batches = tf.reshape(context_len_output_batches, [-1])
-    one_hot_output = tf.one_hot(context_len_output_batches, model.CONFIGURATION[model.vocabulary_size])
-
-    logits = model(context_len_input_batches)
-    logits = tf.reshape(logits, [-1, model.CONFIGURATION[model.vocabulary_size]])
-
-    loss_func = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
-
-    return loss_func(logits, one_hot_output)
-
-
-def generate_text(input_batch, num_of_additions):
+def generate_text(input_batch, num_of_additions, temperature=1.4, top_k=25):
+    input_batch = tf.cast(input_batch, tf.int64)
     for _ in range(num_of_additions):
         context_len_input_batches = input_batch[:, -model.CONFIGURATION[model.context_length]:]
 
         output = model(context_len_input_batches)
 
         logits = output[:, -1, :]
+        logits = logits / temperature
 
-        probabilities = tf.keras.activations.softmax(logits, axis=-1)
+        if top_k is not None:
+            values, _ = tf.math.top_k(logits, k=top_k)
+            min_values = tf.reduce_min(values, axis=-1, keepdims=True)
+            logits = tf.where(logits < min_values, -float("inf"), logits)
 
-        next_word = tf.argmax(probabilities, axis=-1)
-        next_word = tf.expand_dims(next_word, axis=-1)
+        next_word = tf.random.categorical(logits, num_samples=1)
+        next_word = tf.cast(next_word, tf.int64)
 
         input_batch = tf.concat([input_batch, next_word], axis=1)
 
+
     return input_batch
 
+def generate_and_print(input_text, num_of_additions, temperature=0.7, top_k=100):
 
-def train_model():
+    encoded_text = data.tokenize(input_text)
+    input_batch = tf.constant([encoded_text])
 
-    inputs, outputs = 1, 1
+    print(input_text, end="")
 
-    for batch in data.dataset:
-        inputs, outputs = batch
-
-    model(inputs)
-
-    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
-                  loss=CrossEntropyGPT(model),
-                  metrics=['accuracy'],
-            )
-
-    model.summary()
-
-    model.fit(data.dataset, epochs=1)
+    input_batch = tf.cast(input_batch, tf.int64)
+    for _ in range(num_of_additions):
+        context_len_input_batches = input_batch[:, -model.CONFIGURATION[model.context_length]:]
 
 
-train_model()
+        output = model(context_len_input_batches)
 
-loss = 0
+        logits = output[:, -1, :]
+        logits = logits / temperature
 
-print(len(data.dataset))
-for batch in data.dataset:
-    inputs, outputs = batch
-    loss += calculate_loss(inputs, outputs)
-    print(loss)
+        if top_k is not None:
+            values, _ = tf.math.top_k(logits, k=top_k)
+            min_values = tf.reduce_min(values, axis=-1, keepdims=True)
+            logits = tf.where(logits < min_values, -float("inf"), logits)
 
-print(loss)
+        next_word = tf.random.categorical(logits, num_samples=1)
+        next_word = tf.cast(next_word, tf.int64)
+
+        print(data.tokenizer.decode(next_word[0]), end="")
+
+        input_batch = tf.concat([input_batch, next_word], axis=1)
+
+    print()
+    print()
+
+    return input_batch
+
+def generate(input_text, num_of_additions=25, temperature=1.4, top_k=25):
+    encoded_text = data.tokenize(input_text)
+    encoded_text = tf.constant([encoded_text])
+    out_tokens = generate_text(encoded_text, num_of_additions, temperature, top_k)[0]
+    return data.tokenizer.decode(out_tokens)
+
+
+model.build(input_shape=(batch_size, model.CONFIGURATION[model.context_length]))
+# random_tensor = tf.random.uniform((batch_size, model.CONFIGURATION[model.context_length]),
+#                                  minval=0, maxval=50257, dtype=tf.int32)
+# model(random_tensor)
+
+model.summary()
+
+# model.train_model(data)
+# model.load_weights(model.WEIGHTS_PATH)
+
+model.load_weights("model_data\\gpt2_pretrained_weights\\gpt2_model_weights.ckpt")
+
+while True:
+    txt = input()
+    if txt == "":
+        continue
+    if txt == "exit":
+        break
+    generate_and_print(txt, 100, 1.2, 10)
+
+# for batch in data.dataset:
+#     inputs, outputs = batch
+#     print(data.tokenizer.decode(generate_text(inputs, 5)[0][-10:]))
+#     print('---')
+#     print('---')
